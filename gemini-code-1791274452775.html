@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adjective Order Challenge: OSASCOMP</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --success: #16a34a;
+      --error: #dc2626;
+      --accent: #f59e0b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+      padding: 32px;
+      box-sizing: border-box;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .rule-box {
+      background-color: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #1e40af;
+      margin-bottom: 24px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #475569;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      margin-bottom: 24px;
+    }
+
+    .instruction {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Word Bank & Drop Zone (Type 1: Reorder) */
+    .drop-zone {
+      min-height: 54px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 16px;
+      background-color: #f1f5f9;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      min-height: 48px;
+    }
+
+    .word-chip {
+      background-color: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease, background-color 0.2s;
+    }
+
+    .word-chip:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .noun-chip {
+      background-color: #0f172a;
+      cursor: default;
+    }
+
+    .noun-chip:hover {
+      background-color: #0f172a;
+      transform: none;
+    }
+
+    /* Multiple Choice Options (Type 2: Select) */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      background-color: white;
+      border: 2px solid #e2e8f0;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary);
+      background-color: #f8fafc;
+    }
+
+    /* Actions */
+    .btn-action {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-action:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .feedback {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback.correct {
+      background-color: #dcfce7;
+      color: var(--success);
+      border: 1px solid #86efac;
+    }
+
+    .feedback.incorrect {
+      background-color: #fee2e2;
+      color: var(--error);
+      border: 1px solid #fca5a5;
+    }
+
+    .explanation {
+      font-size: 0.9rem;
+      font-weight: normal;
+      margin-top: 6px;
+      color: #334155;
+    }
+
+    /* Score screen */
+    .end-screen {
+      text-align: center;
+    }
+
+    .score-badge {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Adjective Order Challenge 👕</h1>
+    <div class="subtitle">Ordena los adjetivos correctamente según la regla inglesa</div>
+    <div class="rule-box">
+      REGLA: Opinion → Size → Age → Shape → Color/Pattern → Origin → Material → Purpose → Noun
+    </div>
+  </header>
+
+  <div id="game-body">
+    <div class="game-stats">
+      <span id="question-count">Pregunta 1 de 8</span>
+      <span id="score-count">Puntos: 0</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <!-- Contenido dinámico -->
+    </div>
+
+    <button class="btn-action" id="btn-submit" onclick="checkAnswer()">Comprobar respuesta</button>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div id="end-screen" class="end-screen" style="display: none;">
+    <h2>¡Actividad Completada! 🎉</h2>
+    <p>Tu puntuación final es:</p>
+    <div class="score-badge" id="final-score">0 / 8</div>
+    <p id="final-message"></p>
+    <button class="btn-action" onclick="restartGame()">Volver a jugar</button>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    {
+      type: "reorder",
+      instruction: "Ordena los adjetivos para describir la prenda:",
+      words: ["beautiful", "red"],
+      noun: "dress",
+      correctOrder: ["beautiful", "red"],
+      explanation: "Opinion (beautiful) va antes que Color (red)."
+    },
+    {
+      type: "reorder",
+      instruction: "Ordena los adjetivos para describir la chaqueta:",
+      words: ["leather", "black"],
+      noun: "jacket",
+      correctOrder: ["black", "leather"],
+      explanation: "Color (black) va antes que Material (leather)."
+    },
+    {
+      type: "choice",
+      instruction: "Selecciona la frase con el orden CORRECTO:",
+      options: [
+        "A French vintage coat",
+        "A vintage French coat"
+      ],
+      correctIndex: 1,
+      explanation: "Age (vintage) va antes que Origin (French)."
+    },
+    {
+      type: "reorder",
+      instruction: "Ordena los adjetivos para describir las botas:",
+      words: ["Italian", "stylish", "leather"],
+      noun: "boots",
+      correctOrder: ["stylish", "Italian", "leather"],
+      explanation: "Opinion (stylish) → Origin (Italian) → Material (leather)."
+    },
+    {
+      type: "choice",
+      instruction: "Selecciona la frase con el orden CORRECTO:",
+      options: [
+        "An elegant green silk scarf",
+        "An elegant silk green scarf"
+      ],
+      correctIndex: 0,
+      explanation: "Opinion (elegant) → Color (green) → Material (silk)."
+    },
+    {
+      type: "reorder",
+      instruction: "Ordena los adjetivos para describir la camiseta:",
+      words: ["cotton", "hideous", "striped"],
+      noun: "T-shirt",
+      correctOrder: ["hideous", "striped", "cotton"],
+      explanation: "Opinion (hideous) → Pattern (striped) → Material (cotton)."
+    },
+    {
+      type: "reorder",
+      instruction: "Ordena los adjetivos para describir los pantalones:",
+      words: ["baggy", "blue", "comfortable"],
+      noun: "trousers",
+      correctOrder: ["comfortable", "baggy", "blue"],
+      explanation: "Opinion (comfortable) → Shape/Fit (baggy) → Color (blue)."
+    },
+    {
+      type: "choice",
+      instruction: "Selecciona la frase con el orden CORRECTO:",
+      options: [
+        "A cotton blue tight T-shirt",
+        "A tight blue cotton T-shirt"
+      ],
+      correctIndex: 1,
+      explanation: "Size/Fit (tight) → Color (blue) → Material (cotton)."
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let userOrder = [];
+  let selectedOptionIndex = null;
+  let isAnswerChecked = false;
+
+  function loadQuestion() {
+    isAnswerChecked = false;
+    userOrder = [];
+    selectedOptionIndex = null;
+    
+    const q = questions[currentQuestionIndex];
+    const card = document.getElementById('question-card');
+    const feedback = document.getElementById('feedback');
+    const btn = document.getElementById('btn-submit');
+    
+    feedback.style.display = 'none';
+    btn.textContent = "Comprobar respuesta";
+
+    // Actualizar progreso
+    document.getElementById('question-count').textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+    document.getElementById('score-count').textContent = `Puntos: ${score}`;
+    document.getElementById('progress').style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+
+    let html = `<div class="instruction">${q.instruction}</div>`;
+
+    if (q.type === 'reorder') {
+      html += `
+        <div class="drop-zone" id="drop-zone">
+          <!-- Palabras seleccionadas -->
+        </div>
+        <div class="word-bank" id="word-bank">
+          <!-- Palabras para elegir -->
+        </div>
+      `;
+      card.innerHTML = html;
+      renderReorderWords();
+    } else if (q.type === 'choice') {
+      html += `<div class="options-grid">`;
+      q.options.forEach((opt, idx) => {
+        html += `<button class="option-btn" onclick="selectOption(${idx})" id="opt-${idx}">${opt}</button>`;
+      });
+      html += `</div>`;
+      card.innerHTML = html;
+    }
+  }
+
+  function renderReorderWords() {
+    const q = questions[currentQuestionIndex];
+    const dropZone = document.getElementById('drop-zone');
+    const wordBank = document.getElementById('word-bank');
+
+    dropZone.innerHTML = '';
+    wordBank.innerHTML = '';
+
+    // Dibujar elegidos en zona de respuesta
+    userOrder.forEach((word, index) => {
+      const chip = document.createElement('div');
+      chip.className = 'word-chip';
+      chip.textContent = word;
+      chip.onclick = () => unselectWord(index);
+      dropZone.appendChild(chip);
+    });
+
+    // Dibujar el sustantivo al final fijo
+    const nounChip = document.createElement('div');
+    nounChip.className = 'word-chip noun-chip';
+    nounChip.textContent = q.noun;
+    dropZone.appendChild(nounChip);
+
+    // Dibujar banco de palabras
+    q.words.forEach((word) => {
+      if (!userOrder.includes(word)) {
+        const chip = document.createElement('div');
+        chip.className = 'word-chip';
+        chip.textContent = word;
+        chip.onclick = () => selectWord(word);
+        wordBank.appendChild(chip);
+      }
+    });
+  }
+
+  function selectWord(word) {
+    if (isAnswerChecked) return;
+    userOrder.push(word);
+    renderReorderWords();
+  }
+
+  function unselectWord(index) {
+    if (isAnswerChecked) return;
+    userOrder.splice(index, 1);
+    renderReorderWords();
+  }
+
+  function selectOption(index) {
+    if (isAnswerChecked) return;
+    selectedOptionIndex = index;
+    const q = questions[currentQuestionIndex];
+    
+    q.options.forEach((_, idx) => {
+      const btn = document.getElementById(`opt-${idx}`);
+      if (idx === index) {
+        btn.style.borderColor = 'var(--primary)';
+        btn.style.backgroundColor = '#eff6ff';
+      } else {
+        btn.style.borderColor = '#e2e8f0';
+        btn.style.backgroundColor = 'white';
+      }
+    });
+  }
+
+  function checkAnswer() {
+    const btn = document.getElementById('btn-submit');
+    
+    if (isAnswerChecked) {
+      // Pasar a la siguiente
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showEndScreen();
+      }
+      return;
+    }
+
+    const q = questions[currentQuestionIndex];
+    const feedback = document.getElementById('feedback');
+    let isCorrect = false;
+
+    if (q.type === 'reorder') {
+      if (userOrder.length !== q.words.length) {
+        alert("¡Por favor coloca todos los adjetivos!");
+        return;
+      }
+      isCorrect = JSON.stringify(userOrder) === JSON.stringify(q.correctOrder);
+    } else if (q.type === 'choice') {
+      if (selectedOptionIndex === null) {
+        alert("¡Por favor selecciona una opción!");
+        return;
+      }
+      isCorrect = selectedOptionIndex === q.correctIndex;
+    }
+
+    isAnswerChecked = true;
+    feedback.style.display = 'block';
+
+    if (isCorrect) {
+      score++;
+      feedback.className = "feedback correct";
+      feedback.innerHTML = `¡Correcto! 🎉 <div class="explanation">${q.explanation}</div>`;
+    } else {
+      feedback.className = "feedback incorrect";
+      feedback.innerHTML = `Incorrecto ❌ <div class="explanation">${q.explanation}</div>`;
+    }
+
+    document.getElementById('score-count').textContent = `Puntos: ${score}`;
+    btn.textContent = "Siguiente pregunta →";
+  }
+
+  function showEndScreen() {
+    document.getElementById('game-body').style.display = 'none';
+    const endScreen = document.getElementById('end-screen');
+    endScreen.style.display = 'block';
+
+    document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
+    
+    const message = document.getElementById('final-message');
+    if (score === questions.length) {
+      message.textContent = "¡Perfecto! Dominas el orden de los adjetivos a la perfección. 🏆";
+    } else if (score >= questions.length / 2) {
+      message.textContent = "¡Buen trabajo! Has entendido la regla general (OSASCOMP). 👍";
+    } else {
+      message.textContent = "¡Buen intento! Recuerda repasar la regla: Opinión → Color → Material. 📚";
+    }
+  }
+
+  function restartGame() {
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById('end-screen').style.display = 'none';
+    document.getElementById('game-body').style.display = 'block';
+    loadQuestion();
+  }
+
+  // Iniciar el juego
+  loadQuestion();
+</script>
+
+</body>
+</html>
